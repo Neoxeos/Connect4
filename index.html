@@ -3,10 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Connect 4</title>
 </head>
 <body>
-    <canvas></canvas>
+    <div id="container">
+        <canvas></canvas>
+        <div id="BannerContainer" style="position: absolute; top: 10px; left: 800px; height: 1px; width: 200px;">
+            <b>Connect 4 - Christian Coirin</b>
+        </div>
+        <div id="controller" style="position: absolute; left: 800px; top: 60px; height: 350px; width: 600px;">
+
+            <!--Player Selection-->
+            <label id="PlayerOne" style="position: absolute; left: 0px; top: 0px; width: 200px; height: 25px;">Player One (Yelllow):</label>
+            <label id="PlayerTwo" style="position: absolute; left: 0px; top: 125px; width: 140px; height: 25px;">Player Two (Red):</label>
+
+
+            <select id="selectType" onchange="setType(value)" ;=""
+                style="position: absolute; left: 300px; top: 0px; width: 250px; height: 25px;">
+                <option value="Human">Human</option>
+                <option value="Bot">Bot</option>
+                <option value="Random">Random</option>
+                <option value="Greedy">Greedy</option>
+            </select>
+
+            <select id="selectType2" onchange="setType(value)" ;=""
+                style="position: absolute; left: 300px; top: 125px; width: 250px; height: 25px;">
+                <option value="Human">Human</option>
+                <option value="Bot">Bot</option>
+                <option value="Random">Random</option>
+                <option value="Greedy">Greedy</option>
+            </select>
+
+
+            <!--Board Settings-->
+            <label style="position: absolute; left: 0px; top: 300px; width: 200px; height: 25px;">Board Width:</label>
+            <label style="position: absolute; left: 0px; top: 330px; width: 200px; height: 25px;">Board Height:</label>
+
+            <input onchange="setWidth(value)" type="range" id="BoardWidth" name="BoardWidth" min="0" max="10" step="1" style="position: absolute; left: 300px; top: 300px; width: 200px; height: 25px;"/>
+            <input onchange="setHeight(value)" type="range" id="BoardHeight" name="BoardHeight" min="0" max="10" step="1" style="position: absolute; left: 300px; top: 330px; width: 200px; height: 25px;"/>
+
+        </div>
+    </div>
     <script src="GameState.js"></script>
     <script src="gameUI.js"></script>
 </body>
