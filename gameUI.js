@@ -4,12 +4,14 @@ canvas.width = 700;
 canvas.height = 700;
 
 function setWidth(value) {
-    myGame.grid.newGrid(myGame.grid.nRows, value);
+    let num = parseInt(value);
+    myGame.reset(num, myGame.grid.nRows);
     myGame.grid.draw();
 }
 
 function setHeight(value) {
-    myGame.grid.newGrid(value, myGame.grid.nCols);
+    let num = parseInt(value);
+    myGame.reset(myGame.grid.nCols, num);
     myGame.grid.draw();
 }
 
@@ -18,8 +20,35 @@ class Grid
 {
     constructor(nRows, nCols) 
     {
-        this.newGrid(nRows, nCols);
+        ctx.fillStyle = '#468ec9ff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this.nRows = nRows;
+        this.nCols = nCols;
+        this.cells = [];
+
+        this.sizeR = Math.floor(canvas.width / this.nCols); // length of each row
+        this.sizeC = Math.floor(canvas.height / this.nRows); // height of each column
+
+        // get x and y coordinates of the center of the circle
+        this.circleX = Math.floor(this.sizeR / 2);
+        this.circleY = Math.floor(this.sizeC / 2);
+
+        // get circle radius used for sizing the circles
+        this.circleRadius = Math.min(this.circleX, this.circleY)
+
+        for (var i = 0; i < this.nRows; i++)
+        {
+            for (var j = 0; j < this.nCols; j++)
+            {
+                this.cells.push(
+                    { x: this.circleX + j * this.sizeR,
+                      y: this.circleY + i * this.sizeC,
+                      color: 'white'
+                     });
+            }
+        }
     }
+    cells;
 
     // helper function to get column number from x coordinate
     getColumn(x) 
@@ -98,64 +127,67 @@ class Grid
     hover() 
     {
         canvas.addEventListener('mousemove', (event) => {
-                this.draw();
-                ctx.beginPath();
-                // how many pieces are in the column
-                const numInCol = myGame.gameState.pieces[this.getColumn(event.clientX)];
-                // calculate the position of the circle based on the column and number of pieces
-                const offset = Math.floor(numInCol * this.sizeC);
+            this.draw();
+            ctx.beginPath();
+            // how many pieces are in the column
+            const numInCol = gameState.pieces[this.getColumn(event.clientX)];
 
-                const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
-                const y = canvas.height - this.circleY - offset;
+            // calculate the position of the circle based on the column and number of pieces
+            const offset = Math.floor(numInCol * this.sizeC);
 
-                ctx.arc(x,y, this.circleRadius * 0.6, 0, 2 * Math.PI);
-                ctx.fillStyle = 'yellow';
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "grey";
-                ctx.stroke();
+            const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
+            const y = canvas.height - this.circleY - offset;
+
+            ctx.arc(x,y, this.circleRadius * 0.6, 0, 2 * Math.PI);
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "grey";
+            ctx.stroke();
         });
     }
 
     click() 
     {
         canvas.addEventListener('click', (event) => {
+            this.draw();
+            const numInCol = gameState.pieces[this.getColumn(event.clientX)];
+            // calculate the position of the circle based on the column and number of pieces
+            const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
+
+            // y position to place the piece
+            const y = this.circleY + offset;
+            const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
+
+            // getting the correct cell
+            if ( y > 0) {
+                const cell = this.cells.find(cell => 
+                    x == cell.x &&
+                    y == cell.y);
+
+                cell.color = 'yellow';
+                gameState.pieces[this.getColumn(event.clientX)]++;
                 this.draw();
-                const numInCol = myGame.gameState.pieces[this.getColumn(event.clientX)];
-                // calculate the position of the circle based on the column and number of pieces
-                const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
-
-                // y position to place the piece
-                const y = this.circleY + offset;
-                const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
-
-                // getting the correct cell
-                if ( y > 0) {
-                    const cell = this.cells.find(cell => 
-                        x == cell.x &&
-                        y == cell.y);
-                    
-                    console.log("Clicked on cell:", cell);
-                    console.log(`X: ${x}, Y: ${y}`);
-                    cell.color = 'yellow';
-                    myGame.gameState.pieces[this.getColumn(event.clientX)]++;
-                    this.draw();
-                }
+            }
         });
     }
 }
 
 class Game 
 {
-    constructor(columns, rows)
+    constructor(){}
+
+    columns = 5;
+    rows = 5;
+    grid;
+
+    reset(columns, rows)
     {
         this.columns = columns;
         this.rows = rows;
-        console.log("Game initialized with columns:", this.columns, "and rows:", this.rows);
+        gameState.reset(this.columns, this.rows);
+        this.grid.newGrid(this.rows, this.columns);
     }
-
-    grid;
-    gameState;
 
     run() 
     {
@@ -165,7 +197,7 @@ class Game
     }
 }
 
-var myGame = new Game(5,4);
+let myGame = new Game();
 myGame.grid = new Grid(myGame.rows, myGame.columns);
-myGame.gameState = new GameState(myGame.columns, myGame.rows); // columns first here
+let gameState = new GameState(myGame.columns, myGame.rows); // columns first here
 myGame.run();

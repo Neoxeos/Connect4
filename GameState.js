@@ -26,6 +26,29 @@ class GameState {
         this.winInfo = [null, null, null];
     }
 
+    reset(width, height) {
+        this.width = width;
+        this.height = height;
+
+        //pices[n] = number of pieces in column n
+        console.log(`Resetting pieces array with width: ${width}`);
+        this.pieces = (new Array(width)).fill(0);
+        console.log(`Pieces after reset: ${this.pieces.length}`);
+
+        this.totalPieces = 0;
+        this.board = new Array(width).fill(0).map( x => new Array(height).fill(PLAYER_NONE));
+
+        // current player
+        this.player = PLAYER_ONE;
+
+        this.dirs = [[1, 0], [0, 1], [1, 1], [1, -1]]; // horizontal, vertical, diagonal right, diagonal left
+
+        // needed to check for a win
+        this.connect = 4;
+
+        this.winInfo = [null, null, null];
+    }
+
     // returns piece type at x,y
     get (x,y) {
         return this.board[x][y];
