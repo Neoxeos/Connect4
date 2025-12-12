@@ -15,6 +15,11 @@ function setHeight(value) {
     myGame.grid.draw();
 }
 
+function startGame() {
+    myGame.reset(7, 6);
+    myGame.grid.draw();
+}
+
 
 class Grid 
 {
@@ -177,8 +182,8 @@ class Game
 {
     constructor(){}
 
-    columns = 5;
-    rows = 5;
+    columns = 7;
+    rows = 6;
     grid;
 
     reset(columns, rows)

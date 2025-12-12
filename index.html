@@ -42,6 +42,13 @@
             <input onchange="setWidth(value)" type="range" id="BoardWidth" name="BoardWidth" min="0" max="15" step="1" style="position: absolute; left: 300px; top: 300px; width: 200px; height: 25px;"/>
             <input onchange="setHeight(value)" type="range" id="BoardHeight" name="BoardHeight" min="0" max="15" step="1" style="position: absolute; left: 300px; top: 330px; width: 200px; height: 25px;"/>
 
+            <!---Game Controls-->
+            <button id="startGame" style="position: absolute; left: 0px; top: 400px; width: 100px; height: 40px;"
+                onclick="startGame()">Reset Game</button>
+
+            <button id="undoMove" style="position: absolute; left: 150px; top: 400px; width: 100px; height: 40px;"
+                onclick="undoMove()">Undo Move</button>
+
         </div>
     </div>
     <script src="GameState.js"></script>

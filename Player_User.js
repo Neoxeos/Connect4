@@ -1,7 +1,7 @@
 class Player_User {
     constructor(config) {
-        this.config = config; //this.config.limit = maximum time limit for user input = 0 no time limit
-        // this.config.maxDepth = maximum depth for user input = 0 no limit
+        this.config = config; // this.config.limit = maximum time limit for user input = 0 no time limit
+                              // this.config.maxDepth = maximum depth for user input = 0 no limit
 
         this.searchStartTime = 0; // time when search started
 
@@ -35,11 +35,64 @@ class Player_User {
         // record of time
         this.searchStartTime = performance.now();
 
+        this.bestAction = null;
+        this.maxPlater = state.player;
+        for ( let depth = 1; depth < this.config.maxDepth; depth++) 
+        {
+            this.currentMaxDepth = depth;
+            try
+            {
+                this.alphaBeta(state, -Infinity, Infinity, 0, true);
+                this.bestAction = this.currentBestAction;
+            } catch (TimneoutException) {
+                break; // exit the loop on timeout
+            }
+        }
         // return best action 
-        return 0;
+        return this.bestAction;
     }
 
-    // here we implement the min max search with alpha-beta pruning
+    children(state) {
+        let actions = state.getLegalActions();
+        let children = [];
+        for (let a of actions) {
+            let child = state.copy();
+            child.doAction(a);
+            children.push( child );
+        }
+        return children;
+    }
+
+
+    // here we implement minmax without alha-beta pruning
+    // make sure to copy states via state.copy() before generating children othewise modification of references of state will occur on different levels of recursion
+    // ARgs:
+    // state - state of current node of search tree
+    // depth(int) : current depth of search
+    // max(bool) : whether the player is maximizing or not
+    MiniMax(state, depth, max) {
+        // check if last node
+        if (terminal(state) || depth == this.currentMaxDepth) { return eval(state, this.maxPlayer); }
+        if (max) {
+            let maxEval = -Infinity;
+            for ( let child in this.children(state)) {
+                let evalPrime = this.minimax(child, depth + 1, !max);
+                // could have done max(this.minimax(child, depth + 1, !max))
+                if (evalPrime > maxEval) { maxEval = evalPrime;}
+            }
+            return maxEval;
+        } else {
+            let minEval = Infinity;
+            for ( let child in this.children(state)) {
+                let evalPrime = this.minimax(child, depth + 1, !max);
+                // could have done min(this.minimax(child, depth + 1, !max))
+                if (evalPrime < minEval) { minEval = evalPrime;}
+            }
+            return minEval;
+        }
+    }
+
+    // here we implement the MIN MAX search with alpha-beta pruning
     // make sure to copy states via state.copy() before generating children othewise modification of references of state will occur on different levels of recursion
     // ARgs:
     // state - state of current node of search tree
@@ -51,10 +104,38 @@ class Player_User {
     // returns: 
     // value(ibt) : value of the state for the player to move 
     AlphaBeta(state, alpha, beta, depth, max) {
+        // check if last node
+        if (terminal(state) || depth == this.currentMaxDepth) { return eval(state, this.maxPlayer); }
         // perform time check
         let elapsedTime = performance.now() - this.searchStartTime;
+        if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimneoutException(); }
 
-        return 0;
+        if (max) {
+            let maxEval = -Infinity;
+            for ( let child in this.children(state)) {
+                let evalPrime = this.alphaBeta(child, alpha, beta, depth + 1, !max);
+                if (evalPrime > maxEval) { maxEval = evalPrime;}
+                if (evalPrime > beta) { return maxEval; } // beta cutoff
+                if (evalPrime > alpha)
+                {
+                    alpha = evalPrime;
+                    if (depth == 0) { this.currentBestAction = child.lastAction; }
+                }
+            }
+            return maxEval;
+        } else {
+            let minEval = Infinity;
+            for ( let child in this.children(state)) {
+                let evalPrime = this.alphaBeta(child, alpha, beta, depth + 1, !max);
+                if (evalPrime < minEval) { minEval = evalPrime;}
+                if (evalPrime < alpha) { return minEval; } // alpha cutoff
+                if (evalPrime < beta) 
+                {
+                    beta = evalPrime; 
+                }
+            }
+            return minEval;
+        }
     }
 
     // here we implement the heuristic evaluation function for the state

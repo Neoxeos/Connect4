@@ -9,7 +9,7 @@ class GameState {
         this.width = width;
         this.height = height;
 
-        //pices[n] = number of pieces in column n
+        //pieces[n] = number of pieces in column n
         this.pieces = (new Array(width)).fill(0);
 
         this.totalPieces = 0;
