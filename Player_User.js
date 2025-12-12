@@ -160,7 +160,7 @@ class Player_User {
     }
 
 
-    // functio to return zobrist hash value for the state
+    // function to return zobrist hash value for the state
     // args:
     // state : state to get the hash value for
     // returns:
