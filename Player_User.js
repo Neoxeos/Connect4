@@ -42,9 +42,9 @@ class Player_User {
             this.currentMaxDepth = depth;
             try
             {
-                this.alphaBeta(state, -Infinity, Infinity, 0, true);
+                this.AlphaBeta(state, -Infinity, Infinity, 0, true);
                 this.bestAction = this.currentBestAction;
-            } catch (TimneoutException) {
+            } catch (TimeoutException) {
                 break; // exit the loop on timeout
             }
         }
@@ -52,7 +52,7 @@ class Player_User {
         return this.bestAction;
     }
 
-    // Helper function to get children
+    // Helper function to get children and execute action
     children(state) {
         let actions = state.getLegalActions();
         let children = [];
@@ -115,7 +115,7 @@ class Player_User {
     // max(bool) : whether the player is maximizing or not
 
     // returns: 
-    // value(ibt) : value of the state for the player to move 
+    // value(int) : value of the state for the player to move 
     AlphaBeta(state, alpha, beta, depth, max) {
         // check if last node
         if (terminal(state) || depth == this.currentMaxDepth) { return eval(state, this.maxPlayer); }
@@ -126,7 +126,7 @@ class Player_User {
         if (max) {
             let maxEval = -Infinity;
             for ( let child in this.children(state)) {
-                let evalPrime = this.alphaBeta(child, alpha, beta, depth + 1, !max);
+                let evalPrime = this.AlphaBeta(child, alpha, beta, depth + 1, !max);
                 if (evalPrime > maxEval) { maxEval = evalPrime;}
                 if (evalPrime > beta) { return maxEval; } // beta cutoff
                 if (evalPrime > alpha)
@@ -139,7 +139,7 @@ class Player_User {
         } else {
             let minEval = Infinity;
             for ( let child in this.children(state)) {
-                let evalPrime = this.alphaBeta(child, alpha, beta, depth + 1, !max);
+                let evalPrime = this.AlphaBeta(child, alpha, beta, depth + 1, !max);
                 if (evalPrime < minEval) { minEval = evalPrime;}
                 if (evalPrime < alpha) { return minEval; } // alpha cutoff
                 if (evalPrime < beta) 
@@ -169,7 +169,7 @@ class Player_User {
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            
+            if (state.totalPieces == 0) { return 500;}
         }
     }
 

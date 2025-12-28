@@ -60,7 +60,7 @@ class GameState {
     }
 
     // do given action
-    // action is integer rep of column index
+    // action is integer representation of column index
     // action places pieces and switches player
     doAction(action) {
         this.board[action][this.pieces[action]++] = this.player;
