@@ -172,6 +172,7 @@ class Grid
 
                 cell.color = 'yellow';
                 gameState.pieces[this.getColumn(event.clientX)]++;
+                // will call gameState.doAction with Player getAction depending on whose turn it is
                 this.draw();
             }
         });

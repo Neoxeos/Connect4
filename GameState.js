@@ -99,7 +99,7 @@ class GameState {
     }
 
     // check to see if there is a win in direction
-    isWin() {
+    isWin(x, y, dir, connect) {
         let p = this.get(x,y);
         if (p == PLAYER_NONE) {
             return;
@@ -119,17 +119,17 @@ class GameState {
     winner() {
         for (let d = 0; d < this.dirs.length; d++)
         {
-            for (let y = 0; y < this.height; y++)
+            for (let x = 0; x < this.width; x++)
             {
-                if (this.checkWin(x,y,this.dirs[d], this.connect))
+                for (let y = 0; y < this.height; y++)
                 {
-                    if (this.checkWin(x,y,this.dirs[d], this.connect))
+                    if (this.isWin(x,y,this.dirs[d], this.connect))
                     {
                         this.winInfo = [x,y,this.dirs[d]];
                         return this.get(x,y);
                     }
                 }
-            }
+            }   
         }
 
         if (this.totalPieces == this.width * this.height) {return PLAYER_DRAW;}

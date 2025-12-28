@@ -52,6 +52,7 @@ class Player_User {
         return this.bestAction;
     }
 
+    // Helper function to get children
     children(state) {
         let actions = state.getLegalActions();
         let children = [];
@@ -63,6 +64,10 @@ class Player_User {
         return children;
     }
 
+    // Helper function to check terminal state
+    terminal(state) {
+        return state.winner() != PLAYER_NONE;
+    }
 
     // here we implement minmax without alha-beta pruning
     // make sure to copy states via state.copy() before generating children othewise modification of references of state will occur on different levels of recursion
@@ -73,18 +78,26 @@ class Player_User {
     MiniMax(state, depth, max) {
         // check if last node
         if (terminal(state) || depth == this.currentMaxDepth) { return eval(state, this.maxPlayer); }
+        // perform time check
+        let elapsedTime = performance.now() - this.searchStartTime;
+        if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimneoutException(); }
+
         if (max) {
             let maxEval = -Infinity;
             for ( let child in this.children(state)) {
-                let evalPrime = this.minimax(child, depth + 1, !max);
+                let evalPrime = this.MiniMax(child, depth + 1, !max);
                 // could have done max(this.minimax(child, depth + 1, !max))
-                if (evalPrime > maxEval) { maxEval = evalPrime;}
+                if (evalPrime > maxEval) 
+                {
+                    maxEval = evalPrime; 
+                    if (depth == 0) { this.currentBestAction = child.lastAction; }
+                }
             }
             return maxEval;
         } else {
             let minEval = Infinity;
             for ( let child in this.children(state)) {
-                let evalPrime = this.minimax(child, depth + 1, !max);
+                let evalPrime = this.MiniMax(child, depth + 1, !max);
                 // could have done min(this.minimax(child, depth + 1, !max))
                 if (evalPrime < minEval) { minEval = evalPrime;}
             }
@@ -140,7 +153,7 @@ class Player_User {
 
     // here we implement the heuristic evaluation function for the state
     // returns large positive value for win for player, large negative value for loss for player, 0 for draw or no winner
-    // be sure to pass player vairable into this function, call this with player = this.maxPlayer
+    // be sure to pass player variable into this function, call this with player = this.maxPlayer
     // Args:
     // state : state to evaluate
     // player(int) : player to evaluate the state for
@@ -155,7 +168,8 @@ class Player_User {
         else if (winner == PLAYER_DRAW) { return 0;} // return 0 for draw
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
-            return 0;
+            // we will want to most likely start in the middle to get the most connections
+            
         }
     }
 
