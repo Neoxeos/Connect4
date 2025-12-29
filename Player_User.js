@@ -169,10 +169,76 @@ class Player_User {
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            if (state.totalPieces == 0) { return 500;}
+            bestScore = 0;
+            for ( let row = 0; row < state.height; row++) {
+                for ( let col = 0; col < state.width; col++) {
+                    // evaluate each position on the board for potential connections
+                    if (state.get(row, col) != PLAYER_NONE) {
+                        let maxSamePiece = 1;
+                        let concurrentSamePiece = 1;
+                        let maxOppPiece = 0;
+                        let concurrentOppPiece = 0;
+                        for ( let i = 1; i < 4; i++)
+                        {
+                            // check horizontal
+                            if (state.get(row+i, col) == PLAYER_NONE) { break;}
+                            if (state.get(row+i, col) == player) { 
+                                concurrentSamePiece++; 
+                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
+                                concurrentOppPiece = 0;
+                            }
+                            if (state.get(row+i, col) == (player + 1) % 2) { 
+                                concurrentOppPiece++;
+                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; } 
+                                concurrentSamePiece = 0;
+                            }
+
+                            concurrentSamePiece = 1;
+                            concurrentOppPiece = 0;
+
+                            // check vertical
+                            if (state.get(row, col+i) == PLAYER_NONE) { break;}
+                            if (state.get(row, col+i) == player) {
+                                concurrentSamePiece++;
+                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece;
+                                concurrentOppPiece = 0; }
+                            }
+                            if (state.get(row, col+i) == (player + 1) % 2) {
+                                concurrentOppPiece++;
+                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; }
+                                concurrentSamePiece = 0;
+                            }
+
+                            concurrentSamePiece = 1;
+                            concurrentOppPiece = 0;
+
+                            // check diagonal /
+                            if (state.get(row+i, col+i) == PLAYER_NONE) { break;}
+                            if (state.get(row+i, col+i) == player) {
+                                concurrentSamePiece++;
+                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
+                                concurrentOppPiece = 0;
+                            }
+                            if (state.get(row+i, col+i) == (player + 1) % 2) {
+                                concurrentOppPiece++;
+                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; }
+                                concurrentSamePiece = 0;
+                            }
+                            concurrentSamePiece = 1;
+                            concurrentOppPiece = 0;
+
+                            // check diagonal \
+                        }
+                    }
+                }
+            }
+            let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
+            let scoreOpp = 100*(1.2*2**maxOppPiece) + 5;
+            if ( max(scoreOpp,scoreSame) > maxScore) { maxScore = max(scoreOpp,scoreSame); }
+
+            return maxScore;
         }
     }
-
 
     // function to return zobrist hash value for the state
     // args:
