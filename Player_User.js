@@ -234,9 +234,9 @@ class Player_User {
             }
             let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
             let scoreOpp = 100*(1.2*2**maxOppPiece) + 5;
-            if ( max(scoreOpp,scoreSame) > maxScore) { maxScore = max(scoreOpp,scoreSame); }
+            if ( max(scoreOpp,scoreSame) > bestScore) { bestScore = max(scoreOpp,scoreSame); }
 
-            return maxScore;
+            return bestScore;
         }
     }
 
