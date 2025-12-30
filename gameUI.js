@@ -59,18 +59,21 @@ class Grid
 {
     constructor(nRows, nCols) 
     {
+
+        // x: column index
+        // y: row index
         ctx.fillStyle = '#468ec9ff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this.nRows = nRows;
         this.nCols = nCols;
         this.cells = [];
 
-        this.sizeR = Math.floor(canvas.width / this.nCols); // length of each row
-        this.sizeC = Math.floor(canvas.height / this.nRows); // height of each column
+        this.sizeC = Math.floor(canvas.width / this.nCols); // length of each column
+        this.sizeR = Math.floor(canvas.height / this.nRows); // height of each row
 
         // get x and y coordinates of the center of the circle
-        this.circleX = Math.floor(this.sizeR / 2);
-        this.circleY = Math.floor(this.sizeC / 2);
+        this.circleX = Math.floor(this.sizeC / 2);
+        this.circleY = Math.floor(this.sizeR / 2);
 
         // get circle radius used for sizing the circles
         this.circleRadius = Math.min(this.circleX, this.circleY)
@@ -80,35 +83,39 @@ class Grid
             for (var j = 0; j < this.nCols; j++)
             {
                 this.cells.push(
-                    { x: this.circleX + j * this.sizeR,
-                      y: this.circleY + i * this.sizeC,
+                    { x: this.circleX + i * this.sizeC,
+                      y: this.circleY + j * this.sizeR,
                       color: 'white'
                      });
             }
         }
+
+        console.log(this.cells);
     }
 
     // helper function to get column number from x coordinate
     getColumn(x) 
     {
-        return Math.floor(x / this.sizeR);
+        return Math.floor(x / this.sizeC);
     }
 
     // clear canvas and reset game grid
     newGrid(nRows, nCols) 
     {
+        // x: column index
+        // y: row index
         ctx.fillStyle = '#468ec9ff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this.nRows = nRows;
         this.nCols = nCols;
         this.cells = [];
 
-        this.sizeR = Math.floor(canvas.width / this.nCols); // length of each row
-        this.sizeC = Math.floor(canvas.height / this.nRows); // height of each column
+        this.sizeC = Math.floor(canvas.width / this.nCols); // length of each column
+        this.sizeR = Math.floor(canvas.height / this.nRows); // height of each row
 
         // get x and y coordinates of the center of the circle
-        this.circleX = Math.floor(this.sizeR / 2);
-        this.circleY = Math.floor(this.sizeC / 2);
+        this.circleX = Math.floor(this.sizeC / 2);
+        this.circleY = Math.floor(this.sizeR / 2);
 
         // get circle radius used for sizing the circles
         this.circleRadius = Math.min(this.circleX, this.circleY)
@@ -118,8 +125,8 @@ class Grid
             for (var j = 0; j < this.nCols; j++)
             {
                 this.cells.push(
-                    { x: this.circleX + j * this.sizeR,
-                      y: this.circleY + i * this.sizeC,
+                    { x: this.circleX + i * this.sizeC,
+                      y: this.circleY + j * this.sizeR,
                       color: 'white'
                      });
             }
@@ -129,22 +136,23 @@ class Grid
     // draws the board in current state
     draw() 
     {
-        for (let r = 0; r < this.nCols; r++ )
+        // vertical lines
+        for (let r = 0; r < this.nRows; r++ )
         {
             ctx.beginPath();
-            ctx.moveTo(r * this.sizeR , 0);
-            ctx.lineTo(r * this.sizeR , canvas.height);
+            ctx.moveTo(r * this.sizeC , 0);
+            ctx.lineTo(r * this.sizeC , canvas.height);
 
             // Draw the Path
             ctx.stroke();
         }
 
-        for (let c = 0; c < this.nRows; c++ )
+        //horizontal lines
+        for (let c = 0; c < this.nCols; c++ )
         {
             ctx.beginPath();
-            ctx.moveTo(0, c * this.sizeC);
-            ctx.lineTo(canvas.width, c * this.sizeC );
-
+            ctx.moveTo(0, c * this.sizeR);
+            ctx.lineTo(canvas.width, c * this.sizeR );
             // Draw the Path
             ctx.stroke();
         }
@@ -254,7 +262,7 @@ class Game
     {
         this.columns = columns;
         this.rows = rows;
-        gameState.reset(this.columns, this.rows);
+        gameState.reset(this.rows, this.columns);
         this.grid.newGrid(this.rows, this.columns);
     }
 
@@ -268,5 +276,5 @@ class Game
 
 let myGame = new Game();
 myGame.grid = new Grid(myGame.rows, myGame.columns);
-let gameState = new GameState(myGame.columns, myGame.rows); // columns first here
+let gameState = new GameState(myGame.rows, myGame.columns); // columns first here
 myGame.run();
