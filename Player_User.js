@@ -37,7 +37,7 @@ class Player_User {
         this.searchStartTime = performance.now();
 
         this.bestAction = null;
-        this.maxPlater = state.player;
+        this.maxPlayer = state.player;
         console.log(`Maximizing player: ${this.maxPlayer}`);
         for ( let depth = 1; depth < this.config.maxDepth; depth++) 
         {
@@ -80,15 +80,21 @@ class Player_User {
     // max(bool) : whether the player is maximizing or not
     MiniMax(state, depth, max) {
         // check if last node
-        if (terminal(state) || depth == this.currentMaxDepth) { return eval(state, this.maxPlayer); }
+        console.log("checking minimax at depth " + depth + " for max: " + this.currentMaxDepth);
+        console.log(this.terminal(state));
+        if (this.terminal(state) || depth == this.currentMaxDepth) { return this.eval(state, this.maxPlayer); }
         // perform time check
+        console.log("performing time check");
         let elapsedTime = performance.now() - this.searchStartTime;
-        if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimneoutException(); }
-        console.log("m");
+        if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimeoutException(); }
+        console.log("time check passed");
         if (max) {
             let maxEval = -Infinity;
+            console.log(maxEval);
             for ( let child in this.children(state)) {
+                console.log(child);
                 let evalPrime = this.MiniMax(child, depth + 1, !max);
+                console.log("evalPrime: " + evalPrime);
                 // could have done max(this.minimax(child, depth + 1, !max))
                 if (evalPrime > maxEval) 
                 {
@@ -96,6 +102,7 @@ class Player_User {
                     if (depth == 0) { this.currentBestAction = child.lastAction; }
                 }
             }
+            console.log("maxEval: " + maxEval);
             return maxEval;
         } else {
             let minEval = Infinity;
@@ -166,6 +173,7 @@ class Player_User {
     eval(state, player) {
 
         let winner = state.winner();
+        console.log(state)
         if (winner == player) { return 10000;} // win returns large
         else if (winner == (player + 1) % 2) {return -10000;} // return large negative for loss
         else if (winner == PLAYER_DRAW) { return 0;} // return 0 for draw
