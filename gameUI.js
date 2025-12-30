@@ -20,6 +20,40 @@ function startGame() {
     myGame.grid.draw();
 }
 
+function setTypeOne() {
+    const playerOneSelect = document.getElementById("selectType");
+    console.log(`Player One selected: ${playerOneSelect.value}`);
+    if (playerOneSelect.value == "Human") {
+        myGame.playerOne = null;
+    }
+    else if (playerOneSelect.value == "Bot") {
+        myGame.playerOne = new Player_User({limit:0, maxDepth:1});
+    }
+    else if (playerOneSelect.value == "Random") {
+        myGame.playerOne = new Player_Random();
+    }
+    else if (playerOneSelect.value == "Greedy") {
+        myGame.playerOne = new Player_Greedy();
+    }
+}
+
+function setTypeTwo() {
+    const playerTwoSelect = document.getElementById("selectType2");
+    console.log(`Player Two selected: ${playerTwoSelect.value}`); 
+    if (playerTwoSelect.value == "Human") {
+        myGame.playerTwo = null;
+    }
+    else if (playerTwoSelect.value == "Bot") { 
+        myGame.playerTwo = new Player_User({limit:0, maxDepth:1}); // will add config here
+    }
+    else if (playerTwoSelect.value == "Random") {
+        myGame.playerTwo = new Player_Random();
+    }
+    else if (playerTwoSelect.value == "Greedy") {
+        myGame.playerTwo = new Player_Greedy();
+    }  
+}
+
 
 class Grid 
 {
@@ -53,7 +87,6 @@ class Grid
             }
         }
     }
-    cells;
 
     // helper function to get column number from x coordinate
     getColumn(x) 
@@ -144,7 +177,8 @@ class Grid
             const y = canvas.height - this.circleY - offset;
 
             ctx.arc(x,y, this.circleRadius * 0.6, 0, 2 * Math.PI);
-            ctx.fillStyle = 'yellow';
+            if (gameState.player == PLAYER_ONE) {ctx.fillStyle = 'red';}
+            else {ctx.fillStyle = 'yellow';}
             ctx.fill();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "grey";
@@ -152,28 +186,50 @@ class Grid
         });
     }
 
+    getPosition(event)
+    {
+        const numInCol = gameState.pieces[this.getColumn(event)];
+        // calculate the position of the circle based on the column and number of pieces
+        const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
+
+        // y position to place the piece
+        return  { y: this.circleY + offset, x: this.circleX +  this.getColumn(event.clientX) * (this.sizeR) };
+    }
+
+    displayAction(x,y)
+    {
+        const cell = this.cells.find(cell => 
+            x == cell.x &&
+            y == cell.y);
+        console.log(cell);
+        if (gameState.player == PLAYER_ONE) {cell.color = 'red';}
+        else {cell.color = 'yellow';}
+        gameState.doAction(this.getColumn(event.clientX));
+        console.log(`Player ${ gameState.player } played column ${this.getColumn(event.clientX)}`);
+        this.draw();
+    }
+
     click() 
     {
         canvas.addEventListener('click', (event) => {
             this.draw();
-            const numInCol = gameState.pieces[this.getColumn(event.clientX)];
-            // calculate the position of the circle based on the column and number of pieces
-            const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
-
-            // y position to place the piece
-            const y = this.circleY + offset;
-            const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
+            const {x, y} = this.getPosition(event.clientX);
 
             // getting the correct cell
             if ( y > 0) {
-                const cell = this.cells.find(cell => 
-                    x == cell.x &&
-                    y == cell.y);
+                this.displayAction(x,y);
+                console.log("here");
+            }
 
-                cell.color = 'yellow';
-                gameState.pieces[this.getColumn(event.clientX)]++;
-                // will call gameState.doAction with Player getAction depending on whose turn it is
-                this.draw();
+            // call bot move if needed
+            if (myGame.playerTwo != null)
+            {
+                const botAction = myGame.playerTwo.getAction(gameState);
+                const {botX, botY} = this.getPosition(botAction * this.sizeR);
+
+                if ( botY > 0) {
+                    this.displayAction(botX, botY);
+                }
             }
         });
     }
@@ -181,7 +237,11 @@ class Grid
 
 class Game 
 {
-    constructor(){}
+    constructor()
+    {
+        this.playerOne;
+        this.playerTwo;
+    }
 
     columns = 7;
     rows = 6;

@@ -11,7 +11,7 @@ class Player_User {
         this.currentMaxDepth = null; // current max depth of search
         this.maxPlayer = null; // mcurrent maximizing player   for minimax
 
-        let str = "Student AB Player\n";
+        let str = "AI\n";
 
         str += " Time Limit: " + this.config.limit + " \n";
         str += " Max Depth: " + this.config.maxDepth + " \n";
@@ -233,7 +233,7 @@ class Player_User {
                 }
             }
             let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
-            let scoreOpp = 100*(1.2*2**maxOppPiece) + 5;
+            let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5;
             if ( max(scoreOpp,scoreSame) > bestScore) { bestScore = max(scoreOpp,scoreSame); }
 
             return bestScore;

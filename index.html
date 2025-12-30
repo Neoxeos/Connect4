@@ -14,11 +14,11 @@
         <div id="controller" style="position: absolute; left: 800px; top: 60px; height: 350px; width: 600px;">
 
             <!--Player Selection-->
-            <label id="PlayerOne" style="position: absolute; left: 0px; top: 0px; width: 200px; height: 25px;">Player One (Yelllow):</label>
-            <label id="PlayerTwo" style="position: absolute; left: 0px; top: 125px; width: 140px; height: 25px;">Player Two (Red):</label>
+            <label id="PlayerOne" style="position: absolute; left: 0px; top: 0px; width: 200px; height: 25px;">Player One (Red):</label>
+            <label id="PlayerTwo" style="position: absolute; left: 0px; top: 125px; width: 140px; height: 25px;">Player Two (Yellow):</label>
 
 
-            <select id="selectType" onchange="setType(value)" ;=""
+            <select id="selectType" onchange="setTypeOne()" ;=""
                 style="position: absolute; left: 300px; top: 0px; width: 250px; height: 25px;">
                 <option value="Human">Human</option>
                 <option value="Bot">Bot</option>
@@ -26,7 +26,7 @@
                 <option value="Greedy">Greedy</option>
             </select>
 
-            <select id="selectType2" onchange="setType(value)" ;=""
+            <select id="selectType2" onchange="setTypeTwo()" ;=""
                 style="position: absolute; left: 300px; top: 125px; width: 250px; height: 25px;">
                 <option value="Human">Human</option>
                 <option value="Bot">Bot</option>
@@ -53,5 +53,7 @@
     </div>
     <script src="GameState.js"></script>
     <script src="gameUI.js"></script>
+    <script src ="Player_User.js"></script>
+    <script src ="Player.js"></script>
 </body>
 </html>
