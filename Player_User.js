@@ -21,7 +21,8 @@ class Player_User {
     }
 
     getAction(state) {
-       return this.IDAlphaBeta(state);
+        console.log("AI is thinking...");
+        return this.IDAlphaBeta(state);
     }
 
     // here we implement the Iterative Deepening Alpha-Beta Search
@@ -37,12 +38,14 @@ class Player_User {
 
         this.bestAction = null;
         this.maxPlater = state.player;
+        console.log(`Maximizing player: ${this.maxPlayer}`);
         for ( let depth = 1; depth < this.config.maxDepth; depth++) 
         {
             this.currentMaxDepth = depth;
             try
             {
-                this.AlphaBeta(state, -Infinity, Infinity, 0, true);
+                this.MiniMax(state, 0, true);
+                //this.AlphaBeta(state, -Infinity, Infinity, 0, true);
                 this.bestAction = this.currentBestAction;
             } catch (TimeoutException) {
                 break; // exit the loop on timeout
@@ -81,7 +84,7 @@ class Player_User {
         // perform time check
         let elapsedTime = performance.now() - this.searchStartTime;
         if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimneoutException(); }
-
+        console.log("m");
         if (max) {
             let maxEval = -Infinity;
             for ( let child in this.children(state)) {

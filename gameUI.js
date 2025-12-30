@@ -27,7 +27,7 @@ function setTypeOne() {
         myGame.playerOne = null;
     }
     else if (playerOneSelect.value == "Bot") {
-        myGame.playerOne = new Player_User({limit:0, maxDepth:1});
+        myGame.playerOne = new Player_User({limit:0, maxDepth:2}); // will add config here
     }
     else if (playerOneSelect.value == "Random") {
         myGame.playerOne = new Player_Random();
@@ -44,7 +44,7 @@ function setTypeTwo() {
         myGame.playerTwo = null;
     }
     else if (playerTwoSelect.value == "Bot") { 
-        myGame.playerTwo = new Player_User({limit:0, maxDepth:1}); // will add config here
+        myGame.playerTwo = new Player_User({limit:0, maxDepth:2}); // will add config here
     }
     else if (playerTwoSelect.value == "Random") {
         myGame.playerTwo = new Player_Random();
@@ -192,8 +192,9 @@ class Grid
         // calculate the position of the circle based on the column and number of pieces
         const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
 
-        // y position to place the piece
-        return  { y: this.circleY + offset, x: this.circleX +  this.getColumn(event.clientX) * (this.sizeR) };
+        const y = this.circleY + offset;
+        const x = this.circleX +  this.getColumn(event) * (this.sizeR);
+        return  { x, y };
     }
 
     displayAction(x,y)
@@ -201,31 +202,32 @@ class Grid
         const cell = this.cells.find(cell => 
             x == cell.x &&
             y == cell.y);
-        console.log(cell);
         if (gameState.player == PLAYER_ONE) {cell.color = 'red';}
         else {cell.color = 'yellow';}
         gameState.doAction(this.getColumn(event.clientX));
-        console.log(`Player ${ gameState.player } played column ${this.getColumn(event.clientX)}`);
         this.draw();
     }
 
     click() 
     {
         canvas.addEventListener('click', (event) => {
+            console.log(gameState);
             this.draw();
             const {x, y} = this.getPosition(event.clientX);
+            console.log(`Clicked at x: ${x}, y: ${y}`);
 
             // getting the correct cell
             if ( y > 0) {
                 this.displayAction(x,y);
-                console.log("here");
             }
 
             // call bot move if needed
             if (myGame.playerTwo != null)
             {
                 const botAction = myGame.playerTwo.getAction(gameState);
-                const {botX, botY} = this.getPosition(botAction * this.sizeR);
+                console.log(`Bot selected action: ${botAction}`);
+                const {botY, botX} = this.getPosition(botAction * this.sizeR);
+                console.log(`Bot played at x: ${botX}, y: ${botY}`);
 
                 if ( botY > 0) {
                     this.displayAction(botX, botY);
