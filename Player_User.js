@@ -81,7 +81,6 @@ class Player_User {
     MiniMax(state, depth, max) {
         // check if last node
         console.log("checking minimax at depth " + depth + " for max: " + this.currentMaxDepth);
-        console.log(this.terminal(state));
         if (this.terminal(state) || depth == this.currentMaxDepth) { return this.eval(state, this.maxPlayer); }
         // perform time check
         console.log("performing time check");
@@ -92,7 +91,6 @@ class Player_User {
             let maxEval = -Infinity;
             console.log(maxEval);
             let children = this.children(state);
-            console.log(children);
             for ( let child of children) {
                 console.log(child);
                 let evalPrime = this.MiniMax(child, depth + 1, !max);
@@ -163,6 +161,35 @@ class Player_User {
         }
     }
 
+    // Eval helper function to check score in a direction
+    checkScore(row, col, dir, state, player)
+    {
+        let maxSamePiece = 1;
+        let concurrentSamePiece = 1;
+        let maxOppPiece = 0;
+        let concurrentOppPiece = 0;
+
+        let crow = row, ccol = col;
+        for ( let i = 1; i < state.connect; i++)
+        {
+            crow += dir[0]; ccol += dir[1];
+            if (state.get(crow, ccol) == PLAYER_NONE) { break;}
+            if (state.get(crow, ccol) == player) { 
+                concurrentSamePiece++;
+                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
+                concurrentOppPiece = 0;
+            } else if (state.get(crow, ccol) == (player + 1) % 2) {
+                concurrentOppPiece++;
+                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; }
+                concurrentSamePiece = 0;
+            }
+        }
+
+        // score scheme
+        let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
+        let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5;
+        return max(scoreOpp,scoreSame);
+    }
     // here we implement the heuristic evaluation function for the state
     // returns large positive value for win for player, large negative value for loss for player, 0 for draw or no winner
     // be sure to pass player variable into this function, call this with player = this.maxPlayer
@@ -175,80 +202,32 @@ class Player_User {
     eval(state, player) {
 
         let winner = state.winner();
-        console.log(state)
+        console.log(PLAYER_NONE)
         if (winner == player) { return 10000;} // win returns large
         else if (winner == (player + 1) % 2) {return -10000;} // return large negative for loss
         else if (winner == PLAYER_DRAW) { return 0;} // return 0 for draw
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            bestScore = 0;
+            console.log("Evaluating heuristic...");
+            let bestScore = 0;
             for ( let row = 0; row < state.height; row++) {
                 for ( let col = 0; col < state.width; col++) {
+
                     // evaluate each position on the board for potential connections
+                    console.log('piece at (' + row + ', ' + col + '): ' + state.get(row, col));
                     if (state.get(row, col) != PLAYER_NONE) {
-                        let maxSamePiece = 1;
-                        let concurrentSamePiece = 1;
-                        let maxOppPiece = 0;
-                        let concurrentOppPiece = 0;
-                        for ( let i = 1; i < 4; i++)
-                        {
-                            // check horizontal
-                            if (state.get(row+i, col) == PLAYER_NONE) { break;}
-                            if (state.get(row+i, col) == player) { 
-                                concurrentSamePiece++; 
-                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
-                                concurrentOppPiece = 0;
-                            }
-                            if (state.get(row+i, col) == (player + 1) % 2) { 
-                                concurrentOppPiece++;
-                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; } 
-                                concurrentSamePiece = 0;
-                            }
-
-                            concurrentSamePiece = 1;
-                            concurrentOppPiece = 0;
-
-                            // check vertical
-                            if (state.get(row, col+i) == PLAYER_NONE) { break;}
-                            if (state.get(row, col+i) == player) {
-                                concurrentSamePiece++;
-                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece;
-                                concurrentOppPiece = 0; }
-                            }
-                            if (state.get(row, col+i) == (player + 1) % 2) {
-                                concurrentOppPiece++;
-                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; }
-                                concurrentSamePiece = 0;
-                            }
-
-                            concurrentSamePiece = 1;
-                            concurrentOppPiece = 0;
-
-                            // check diagonal /
-                            if (state.get(row+i, col+i) == PLAYER_NONE) { break;}
-                            if (state.get(row+i, col+i) == player) {
-                                concurrentSamePiece++;
-                                if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
-                                concurrentOppPiece = 0;
-                            }
-                            if (state.get(row+i, col+i) == (player + 1) % 2) {
-                                concurrentOppPiece++;
-                                if (concurrentOppPiece > maxOppPiece) { maxOppPiece = concurrentOppPiece; }
-                                concurrentSamePiece = 0;
-                            }
-                            concurrentSamePiece = 1;
-                            concurrentOppPiece = 0;
-
-                            // check diagonal \
+                        // check horizontally, vertically, and diagonally for potential connections
+                        console.log("Checking position (" + row + ", " + col + ")");
+                        for ( let dir of state.dirs) {
+                            let score = this.checkScore(row, col, dir, state, player);
+                            bestScore = max(bestScore, score);
+                            console.log("Score for direction " + dir + " : " + score);
                         }
+                        console.log("bestScore: " + bestScore);
                     }
                 }
             }
-            let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
-            let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5;
-            if ( max(scoreOpp,scoreSame) > bestScore) { bestScore = max(scoreOpp,scoreSame); }
-
             return bestScore;
         }
     }
