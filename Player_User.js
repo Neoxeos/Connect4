@@ -91,7 +91,9 @@ class Player_User {
         if (max) {
             let maxEval = -Infinity;
             console.log(maxEval);
-            for ( let child in this.children(state)) {
+            let children = this.children(state);
+            console.log(children);
+            for ( let child of children) {
                 console.log(child);
                 let evalPrime = this.MiniMax(child, depth + 1, !max);
                 console.log("evalPrime: " + evalPrime);
