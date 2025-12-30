@@ -114,7 +114,7 @@ class Player_User {
     // beta(int) : current beta value
     // depth(int) : current depth of search
     // max(bool) : whether the player is maximizing or not
-
+    //
     // returns: 
     // value(int) : value of the state for the player to move 
     AlphaBeta(state, alpha, beta, depth, max) {
@@ -155,10 +155,15 @@ class Player_User {
     // Eval helper function to check score in a direction
     checkScore(row, col, dir, state, player)
     {
-        let maxSamePiece = 1;
-        let concurrentSamePiece = 1;
+        let maxSamePiece = 0;
+        let concurrentSamePiece = 0;
         let maxOppPiece = 0;
         let concurrentOppPiece = 0;
+        let consecutivePieces = 1;
+
+        // make sure to count the piece at (row, col)
+        if (state.get(row,col) == player) { concurrentSamePiece++; maxSamePiece++; }
+        else if (state.get(row,col) == (player + 1) % 2) { concurrentOppPiece++; maxOppPiece++; }
 
         let crow = row, ccol = col;
         for ( let i = 1; i < state.connect; i++)
@@ -166,6 +171,7 @@ class Player_User {
             crow += dir[0]; ccol += dir[1];
             if (!state.isOnBoard(crow, ccol)) { break;}
             if (state.get(crow, ccol) == PLAYER_NONE) { break;}
+            consecutivePieces++;
             if (state.get(crow, ccol) == player) { 
                 concurrentSamePiece++;
                 if (concurrentSamePiece > maxSamePiece) { maxSamePiece = concurrentSamePiece; }
@@ -178,10 +184,15 @@ class Player_User {
         }
 
         // score scheme
-        let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
-        let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5;
-        return Math.max(scoreSame, scoreOpp);
+        let scoreSame = 100*(2**maxSamePiece) + 5 + consecutivePieces; // 5 placeholder for position advantage
+        let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5 + consecutivePieces;
+
+        console.log(`Score Same: ${scoreSame} for ${row} , ${col}, Score Opp: ${scoreOpp}`);
+
+        if (scoreOpp >= scoreSame) { return -scoreOpp; }  
+        else { return scoreSame; }
     }
+
     // here we implement the heuristic evaluation function for the state
     // returns large positive value for win for player, large negative value for loss for player, 0 for draw or no winner
     // be sure to pass player variable into this function, call this with player = this.maxPlayer
@@ -190,7 +201,6 @@ class Player_User {
     // player(int) : player to evaluate the state for
     // Returns:
     // value(int) : heuristic evaluatiaon of the state
-
     eval(state, player) {
 
         let winner = state.winner();
@@ -200,7 +210,7 @@ class Player_User {
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            let bestScore = 0;
+            let bestScores = [];
             for ( let row = 0; row < state.height; row++) {
                 for ( let col = 0; col < state.width; col++) {
 
@@ -209,12 +219,17 @@ class Player_User {
                         // check horizontally, vertically, and diagonally for potential connections
                         for ( let dir of state.dirs) {
                             let score = this.checkScore(row, col, dir, state, player);
-                            bestScore = Math.max(bestScore, score);
+                            bestScores.push(score);
                         }
                     }
                 }
             }
-            return bestScore;
+
+            const low = Math.min(...bestScores);
+            const high = Math.max(...bestScores);
+            
+            if (Math.abs(low) >= Math.abs(high)) { return low; }
+            else { return high; }   
         }
     }
 

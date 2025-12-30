@@ -44,7 +44,7 @@ function setTypeTwo() {
         myGame.playerTwo = null;
     }
     else if (playerTwoSelect.value == "Bot") { 
-        myGame.playerTwo = new Player_User({limit:0, maxDepth:3}); // will add config here
+        myGame.playerTwo = new Player_User({limit:0, maxDepth:2}); // will add config here
     }
     else if (playerTwoSelect.value == "Random") {
         myGame.playerTwo = new Player_Random();
