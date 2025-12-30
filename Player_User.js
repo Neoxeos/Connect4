@@ -62,7 +62,7 @@ class Player_User {
         for (let a of actions) {
             let child = state.copy();
             child.doAction(a);
-            children.push( child );
+            children.push( {child:child, action:a} );
         }
         return children;
     }
@@ -90,24 +90,23 @@ class Player_User {
         if (max) {
             let maxEval = -Infinity;
             console.log(maxEval);
-            let children = this.children(state);
-            for ( let child of children) {
-                console.log(child);
-                let evalPrime = this.MiniMax(child, depth + 1, !max);
+            for ( let child of this.children(state)) {
+                console.log(child[0]);
+                let evalPrime = this.MiniMax(child.child, depth + 1, !max);
                 console.log("evalPrime: " + evalPrime);
                 // could have done max(this.minimax(child, depth + 1, !max))
                 if (evalPrime > maxEval) 
                 {
                     maxEval = evalPrime; 
-                    if (depth == 0) { this.currentBestAction = child.lastAction; }
+                    if (depth == 0) { this.currentBestAction = child.action; }
                 }
             }
             console.log("maxEval: " + maxEval);
             return maxEval;
         } else {
             let minEval = Infinity;
-            for ( let child in this.children(state)) {
-                let evalPrime = this.MiniMax(child, depth + 1, !max);
+            for ( let child of this.children(state)) {
+                let evalPrime = this.MiniMax(child.child, depth + 1, !max);
                 // could have done min(this.minimax(child, depth + 1, !max))
                 if (evalPrime < minEval) { minEval = evalPrime;}
             }
@@ -173,6 +172,7 @@ class Player_User {
         for ( let i = 1; i < state.connect; i++)
         {
             crow += dir[0]; ccol += dir[1];
+            if (!state.isOnBoard(crow, ccol)) { break;}
             if (state.get(crow, ccol) == PLAYER_NONE) { break;}
             if (state.get(crow, ccol) == player) { 
                 concurrentSamePiece++;
@@ -188,7 +188,7 @@ class Player_User {
         // score scheme
         let scoreSame = 100*(2**maxSamePiece) + 5; // 5 placeholder for position advantage
         let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5;
-        return max(scoreOpp,scoreSame);
+        return Math.max(scoreSame, scoreOpp);
     }
     // here we implement the heuristic evaluation function for the state
     // returns large positive value for win for player, large negative value for loss for player, 0 for draw or no winner
@@ -202,7 +202,6 @@ class Player_User {
     eval(state, player) {
 
         let winner = state.winner();
-        console.log(PLAYER_NONE)
         if (winner == player) { return 10000;} // win returns large
         else if (winner == (player + 1) % 2) {return -10000;} // return large negative for loss
         else if (winner == PLAYER_DRAW) { return 0;} // return 0 for draw
@@ -214,15 +213,12 @@ class Player_User {
             for ( let row = 0; row < state.height; row++) {
                 for ( let col = 0; col < state.width; col++) {
 
-                    // evaluate each position on the board for potential connections
-                    console.log('piece at (' + row + ', ' + col + '): ' + state.get(row, col));
+                    // evaluate each position on the board for potential connections    
                     if (state.get(row, col) != PLAYER_NONE) {
                         // check horizontally, vertically, and diagonally for potential connections
-                        console.log("Checking position (" + row + ", " + col + ")");
                         for ( let dir of state.dirs) {
                             let score = this.checkScore(row, col, dir, state, player);
-                            bestScore = max(bestScore, score);
-                            console.log("Score for direction " + dir + " : " + score);
+                            bestScore = Math.max(bestScore, score);
                         }
                         console.log("bestScore: " + bestScore);
                     }
