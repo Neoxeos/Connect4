@@ -44,7 +44,7 @@ function setTypeTwo() {
         myGame.playerTwo = null;
     }
     else if (playerTwoSelect.value == "Bot") { 
-        myGame.playerTwo = new Player_User({limit:0, maxDepth:2}); // will add config here
+        myGame.playerTwo = new Player_User({limit:0, maxDepth:3}); // will add config here
     }
     else if (playerTwoSelect.value == "Random") {
         myGame.playerTwo = new Player_Random();
@@ -204,7 +204,7 @@ class Grid
             y == cell.y);
         if (gameState.player == PLAYER_ONE) {cell.color = 'red';}
         else {cell.color = 'yellow';}
-        gameState.doAction(this.getColumn(event.clientX));
+        gameState.doAction(this.getColumn(x));
         this.draw();
     }
 
@@ -212,6 +212,7 @@ class Grid
     {
         canvas.addEventListener('click', (event) => {
             console.log(gameState);
+            console.log(gameState.board);
             this.draw();
             const [x, y] = this.getPosition(event.clientX);
             console.log(`Clicked at x: ${x}, y: ${y}`);

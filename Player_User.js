@@ -38,7 +38,6 @@ class Player_User {
 
         this.bestAction = null;
         this.maxPlayer = state.player;
-        console.log(`Maximizing player: ${this.maxPlayer}`);
         for ( let depth = 1; depth < this.config.maxDepth; depth++) 
         {
             this.currentMaxDepth = depth;
@@ -80,20 +79,14 @@ class Player_User {
     // max(bool) : whether the player is maximizing or not
     MiniMax(state, depth, max) {
         // check if last node
-        console.log("checking minimax at depth " + depth + " for max: " + this.currentMaxDepth);
         if (this.terminal(state) || depth == this.currentMaxDepth) { return this.eval(state, this.maxPlayer); }
         // perform time check
-        console.log("performing time check");
         let elapsedTime = performance.now() - this.searchStartTime;
         if (this.config.limit > 0 && elapsedTime > this.config.limit) { throw new TimeoutException(); }
-        console.log("time check passed");
         if (max) {
             let maxEval = -Infinity;
-            console.log(maxEval);
             for ( let child of this.children(state)) {
-                console.log(child[0]);
                 let evalPrime = this.MiniMax(child.child, depth + 1, !max);
-                console.log("evalPrime: " + evalPrime);
                 // could have done max(this.minimax(child, depth + 1, !max))
                 if (evalPrime > maxEval) 
                 {
@@ -101,7 +94,6 @@ class Player_User {
                     if (depth == 0) { this.currentBestAction = child.action; }
                 }
             }
-            console.log("maxEval: " + maxEval);
             return maxEval;
         } else {
             let minEval = Infinity;
@@ -208,7 +200,6 @@ class Player_User {
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            console.log("Evaluating heuristic...");
             let bestScore = 0;
             for ( let row = 0; row < state.height; row++) {
                 for ( let col = 0; col < state.width; col++) {
@@ -220,7 +211,6 @@ class Player_User {
                             let score = this.checkScore(row, col, dir, state, player);
                             bestScore = Math.max(bestScore, score);
                         }
-                        console.log("bestScore: " + bestScore);
                     }
                 }
             }
