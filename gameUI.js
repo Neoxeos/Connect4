@@ -194,7 +194,7 @@ class Grid
 
         const y = this.circleY + offset;
         const x = this.circleX +  this.getColumn(event) * (this.sizeR);
-        return  { x, y };
+        return  [ x, y ];
     }
 
     displayAction(x,y)
@@ -213,7 +213,7 @@ class Grid
         canvas.addEventListener('click', (event) => {
             console.log(gameState);
             this.draw();
-            const {x, y} = this.getPosition(event.clientX);
+            const [x, y] = this.getPosition(event.clientX);
             console.log(`Clicked at x: ${x}, y: ${y}`);
 
             // getting the correct cell
@@ -226,7 +226,7 @@ class Grid
             {
                 const botAction = myGame.playerTwo.getAction(gameState);
                 console.log(`Bot selected action: ${botAction}`);
-                const {botY, botX} = this.getPosition(botAction * this.sizeR);
+                const [botX, botY] = this.getPosition(botAction * this.sizeR);
                 console.log(`Bot played at x: ${botX}, y: ${botY}`);
 
                 if ( botY > 0) {
