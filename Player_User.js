@@ -186,11 +186,7 @@ class Player_User {
         // score scheme
         let scoreSame = 100*(2**maxSamePiece) + 5 + consecutivePieces; // 5 placeholder for position advantage
         let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5 + consecutivePieces;
-
-        console.log(`Score Same: ${scoreSame} for ${row} , ${col}, Score Opp: ${scoreOpp}`);
-
-        if (scoreOpp >= scoreSame) { return -scoreOpp; }  
-        else { return scoreSame; }
+        return Math.max(scoreSame, scoreOpp);
     }
 
     // here we implement the heuristic evaluation function for the state
@@ -210,26 +206,21 @@ class Player_User {
         else if (winner == PLAYER_NONE) { 
             // heuristic here goes between large negative and large positive
             // we will want to most likely start in the middle to get the most connections
-            let bestScores = [];
+            let bestScores = -500;
             for ( let row = 0; row < state.height; row++) {
                 for ( let col = 0; col < state.width; col++) {
 
                     // evaluate each position on the board for potential connections    
-                    if (state.get(row, col) != PLAYER_NONE) {
+                    if (state.get(col, row) != PLAYER_NONE) {
                         // check horizontally, vertically, and diagonally for potential connections
                         for ( let dir of state.dirs) {
-                            let score = this.checkScore(row, col, dir, state, player);
-                            bestScores.push(score);
+                            let score = this.checkScore(col, row, dir, state, player);
+                            bestScores = Math.max(bestScores, score);
                         }
                     }
                 }
             }
-
-            const low = Math.min(...bestScores);
-            const high = Math.max(...bestScores);
-            
-            if (Math.abs(low) >= Math.abs(high)) { return low; }
-            else { return high; }   
+            return bestScores; 
         }
     }
 

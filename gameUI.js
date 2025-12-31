@@ -44,7 +44,7 @@ function setTypeTwo() {
         myGame.playerTwo = null;
     }
     else if (playerTwoSelect.value == "Bot") { 
-        myGame.playerTwo = new Player_User({limit:0, maxDepth:2}); // will add config here
+        myGame.playerTwo = new Player_User({limit:0, maxDepth:3}); // will add config here
     }
     else if (playerTwoSelect.value == "Random") {
         myGame.playerTwo = new Player_Random();
@@ -78,9 +78,9 @@ class Grid
         // get circle radius used for sizing the circles
         this.circleRadius = Math.min(this.circleX, this.circleY)
 
-        for (var i = 0; i < this.nRows; i++)
+        for (var i = 0; i < this.nCols; i++)
         {
-            for (var j = 0; j < this.nCols; j++)
+            for (var j = 0; j < this.nRows; j++)
             {
                 this.cells.push(
                     { x: this.circleX + i * this.sizeC,
@@ -89,8 +89,6 @@ class Grid
                      });
             }
         }
-
-        console.log(this.cells);
     }
 
     // helper function to get column number from x coordinate
@@ -120,9 +118,9 @@ class Grid
         // get circle radius used for sizing the circles
         this.circleRadius = Math.min(this.circleX, this.circleY)
 
-        for (var i = 0; i < this.nRows; i++)
+        for (var i = 0; i < this.nCols; i++)
         {
-            for (var j = 0; j < this.nCols; j++)
+            for (var j = 0; j < this.nRows; j++)
             {
                 this.cells.push(
                     { x: this.circleX + i * this.sizeC,
@@ -137,7 +135,7 @@ class Grid
     draw() 
     {
         // vertical lines
-        for (let r = 0; r < this.nRows; r++ )
+        for (let r = 0; r < this.nCols; r++ )
         {
             ctx.beginPath();
             ctx.moveTo(r * this.sizeC , 0);
@@ -148,7 +146,7 @@ class Grid
         }
 
         //horizontal lines
-        for (let c = 0; c < this.nCols; c++ )
+        for (let c = 0; c < this.nRows; c++ )
         {
             ctx.beginPath();
             ctx.moveTo(0, c * this.sizeR);
@@ -179,9 +177,9 @@ class Grid
             const numInCol = gameState.pieces[this.getColumn(event.clientX)];
 
             // calculate the position of the circle based on the column and number of pieces
-            const offset = Math.floor(numInCol * this.sizeC);
+            const offset = Math.floor(numInCol * this.sizeR);
 
-            const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeR);
+            const x = this.circleX +  this.getColumn(event.clientX) * (this.sizeC);
             const y = canvas.height - this.circleY - offset;
 
             ctx.arc(x,y, this.circleRadius * 0.6, 0, 2 * Math.PI);
@@ -198,10 +196,10 @@ class Grid
     {
         const numInCol = gameState.pieces[this.getColumn(event)];
         // calculate the position of the circle based on the column and number of pieces
-        const offset = (this.sizeC * (this.nRows-1)) - Math.floor(numInCol * this.sizeC);
+        const offset = (this.nRows-1) * this.sizeR - Math.floor(numInCol * this.sizeR);
 
-        const y = this.circleY + offset;
-        const x = this.circleX +  this.getColumn(event) * (this.sizeR);
+        const y = offset + this.circleY;
+        const x = this.circleX +  this.getColumn(event) * (this.sizeC);
         return  [ x, y ];
     }
 
@@ -219,11 +217,8 @@ class Grid
     click() 
     {
         canvas.addEventListener('click', (event) => {
-            console.log(gameState);
-            console.log(gameState.board);
             this.draw();
             const [x, y] = this.getPosition(event.clientX);
-            console.log(`Clicked at x: ${x}, y: ${y}`);
 
             // getting the correct cell
             if ( y > 0) {
@@ -276,5 +271,6 @@ class Game
 
 let myGame = new Game();
 myGame.grid = new Grid(myGame.rows, myGame.columns);
-let gameState = new GameState(myGame.rows, myGame.columns); // columns first here
+let gameState = new GameState(myGame.columns, myGame.rows); // columns first here
+console.log(gameState);
 myGame.run();
