@@ -184,8 +184,8 @@ class Player_User {
         }
 
         // score scheme
-        let scoreSame = 100*(2**maxSamePiece) + 5 + consecutivePieces; // 5 placeholder for position advantage
-        let scoreOpp = 100*((1.2)*2**maxOppPiece) + 5 + consecutivePieces;
+        let scoreSame = 100*(2**maxSamePiece) + 15 + consecutivePieces; // 5 placeholder for position advantage
+        let scoreOpp = 100*((1.2)*2**maxOppPiece) + 15 + consecutivePieces;
         return Math.max(scoreSame, scoreOpp);
     }
 
